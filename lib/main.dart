@@ -24,11 +24,7 @@ class MyHomePage extends ConsumerWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
-  int _counter = 0;
-
-  void _incrementCounter() {
-    _counter++;
-  }
+  final _counterProvider = StateProvider((ref) => 0);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,14 +40,15 @@ class MyHomePage extends ConsumerWidget {
               'You have pushed the button this many times:',
             ),
             Text(
-              '$_counter',
+              '${ref.watch(_counterProvider)}',
               style: Theme.of(context).textTheme.headline4,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: () =>
+            ref.read(_counterProvider.notifier).update((state) => state + 1),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
