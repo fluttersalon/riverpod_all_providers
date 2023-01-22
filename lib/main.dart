@@ -24,8 +24,7 @@ class MyHomePage extends ConsumerWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
-  final _counterProvider =
-      StateNotifierProvider<CounterNotifier, int>((ref) => CounterNotifier());
+  final _counterNotifier = ChangeNotifierProvider((ref) => CounterNotifier());
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -41,14 +40,14 @@ class MyHomePage extends ConsumerWidget {
               'You have pushed the button this many times:',
             ),
             Text(
-              '${ref.watch(_counterProvider)}',
+              '${ref.watch(_counterNotifier).counter}',
               style: Theme.of(context).textTheme.headline4,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => ref.read(_counterProvider.notifier).countUp(),
+        onPressed: () => ref.read(_counterNotifier).countUp(),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
@@ -56,9 +55,12 @@ class MyHomePage extends ConsumerWidget {
   }
 }
 
-class CounterNotifier extends StateNotifier<int> {
-  CounterNotifier() : super(0);
+class CounterNotifier extends ChangeNotifier {
+  int _counter = 0;
+  get counter => _counter;
+
   void countUp() {
-    state++;
+    _counter++;
+    notifyListeners();
   }
 }
