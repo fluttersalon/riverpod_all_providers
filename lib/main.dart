@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -24,10 +25,11 @@ class MyHomePage extends ConsumerWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
-  final _counterProvider = ChangeNotifierProvider((ref) => Counter());
-  late final _doubleProvider =
-      Provider<int>((ref) => ref.watch(_counterProvider).counter * 2);
-
+  static const kKey = 'keyCounter';
+  final _futureProvider = FutureProvider((ref) async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    return sharedPreferences.getInt(kKey) ?? 0;
+  });
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
@@ -41,28 +43,27 @@ class MyHomePage extends ConsumerWidget {
             const Text(
               'You have pushed the button this many times:',
             ),
-            Text(
-              '${ref.watch(_doubleProvider)}',
-              style: Theme.of(context).textTheme.headline4,
-            ),
+            ref.watch(_futureProvider).when(
+                  loading: () => const CircularProgressIndicator(),
+                  error: (error, stack) => const Text('error'),
+                  data: (data) => Text(
+                    '${ref.watch(_futureProvider).value}',
+                    style: Theme.of(context).textTheme.headline4,
+                  ),
+                ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => ref.read(_counterProvider).countUp(),
+        onPressed: () async {
+          final prefs = await SharedPreferences.getInstance();
+          int currentValue = prefs.getInt(kKey) ?? 0;
+          prefs.setInt(kKey, currentValue + 1);
+          ref.invalidate(_futureProvider);
+        },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
     );
-  }
-}
-
-class Counter extends ChangeNotifier {
-  int _counter = 0;
-  get counter => _counter;
-
-  void countUp() {
-    _counter++;
-    notifyListeners();
   }
 }
