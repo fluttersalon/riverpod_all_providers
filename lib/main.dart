@@ -25,6 +25,8 @@ class MyHomePage extends ConsumerWidget {
   final String title;
 
   final _counterProvider = ChangeNotifierProvider((ref) => Counter());
+  late final _doubleProvider =
+      Provider<int>((ref) => ref.watch(_counterProvider).counter * 2);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,7 +42,7 @@ class MyHomePage extends ConsumerWidget {
               'You have pushed the button this many times:',
             ),
             Text(
-              '${ref.watch(_counterProvider).counter}',
+              '${ref.watch(_doubleProvider)}',
               style: Theme.of(context).textTheme.headline4,
             ),
           ],
