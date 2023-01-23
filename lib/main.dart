@@ -20,22 +20,17 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends ConsumerStatefulWidget {
+class MyHomePage extends StatelessWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
-  @override
-  ConsumerState<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends ConsumerState<MyHomePage> {
   final _counterProvider = StateProvider((ref) => 0);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(title),
       ),
       body: Center(
         child: Column(
@@ -44,19 +39,23 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
             const Text(
               'You have pushed the button this many times:',
             ),
-            Text(
-              '${ref.watch(_counterProvider)}',
-              style: Theme.of(context).textTheme.headline4,
-            ),
+            Consumer(builder: (context, ref, child) {
+              return Text(
+                '${ref.watch(_counterProvider)}',
+                style: Theme.of(context).textTheme.headline4,
+              );
+            }),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            ref.read(_counterProvider.notifier).update((state) => state + 1),
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: Consumer(builder: (context, ref, child) {
+        return FloatingActionButton(
+          onPressed: () =>
+              ref.read(_counterProvider.notifier).update((state) => state + 1),
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        );
+      }),
     );
   }
 }
