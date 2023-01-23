@@ -20,14 +20,14 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends ConsumerWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
   final _counterProvider = StateProvider((ref) => 0);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -39,23 +39,19 @@ class MyHomePage extends StatelessWidget {
             const Text(
               'You have pushed the button this many times:',
             ),
-            Consumer(builder: (context, ref, child) {
-              return Text(
-                '${ref.watch(_counterProvider)}',
-                style: Theme.of(context).textTheme.headline4,
-              );
-            }),
+            Text(
+              '${ref.watch(_counterProvider)}',
+              style: Theme.of(context).textTheme.headline4,
+            ),
           ],
         ),
       ),
-      floatingActionButton: Consumer(builder: (context, ref, child) {
-        return FloatingActionButton(
-          onPressed: () =>
-              ref.read(_counterProvider.notifier).update((state) => state + 1),
-          tooltip: 'Increment',
-          child: const Icon(Icons.add),
-        );
-      }),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () =>
+            ref.read(_counterProvider.notifier).update((state) => state + 1),
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
