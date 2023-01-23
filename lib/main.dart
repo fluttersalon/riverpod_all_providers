@@ -1,8 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -23,22 +20,22 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends ConsumerWidget {
+class MyHomePage extends ConsumerStatefulWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
-  final _streamController = StreamController<int>();
-  late final _streamProvider = StreamProvider<int>((ref) {
-    return _streamController.stream;
-  });
+  @override
+  ConsumerState<MyHomePage> createState() => _MyHomePageState();
+}
 
-  int _count = 0;
+class _MyHomePageState extends ConsumerState<MyHomePage> {
+  final _counterProvider = StateProvider((ref) => 0);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
       ),
       body: Center(
         child: Column(
@@ -47,19 +44,16 @@ class MyHomePage extends ConsumerWidget {
             const Text(
               'You have pushed the button this many times:',
             ),
-            ref.watch(_streamProvider).when(
-                  loading: () => const CircularProgressIndicator(),
-                  error: (error, stack) => const Text('error'),
-                  data: (data) => Text(
-                    '${ref.watch(_streamProvider).value}',
-                    style: Theme.of(context).textTheme.headline4,
-                  ),
-                ),
+            Text(
+              '${ref.watch(_counterProvider)}',
+              style: Theme.of(context).textTheme.headline4,
+            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _streamController.sink.add(++_count),
+        onPressed: () =>
+            ref.read(_counterProvider.notifier).update((state) => state + 1),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
