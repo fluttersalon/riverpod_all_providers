@@ -15,33 +15,23 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class MyHomePage extends StatelessWidget {
+  MyHomePage({super.key, required this.title});
   final String title;
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  final _normalListProvider = StateProvider<List<int>>((ref) => []);
+  final _immutableListProvider = StateProvider<List<int>>((ref) => []);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(title),
       ),
       body: Center(
         child: Column(
@@ -50,18 +40,39 @@ class _MyHomePageState extends State<MyHomePage> {
             const Text(
               'You have pushed the button this many times:',
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
+            Consumer(builder: (context, ref, child) {
+              return Text(
+                '${ref.watch(_normalListProvider).length}',
+                style: Theme.of(context).textTheme.headline4,
+              );
+            }),
+            Consumer(builder: (context, ref, child) {
+              return Text(
+                '${ref.watch(_immutableListProvider).length}',
+                style: Theme.of(context).textTheme.headline4,
+              );
+            }),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: Consumer(builder: (context, ref, child) {
+        return FloatingActionButton(
+          onPressed: () {
+            final listInNormalUsage = ref.read(_normalListProvider);
+            listInNormalUsage.add(0);
+            ref.read(_normalListProvider.notifier).state = listInNormalUsage;
+
+            final list = ref.read(_immutableListProvider);
+            final newList = [...list, 0];
+            ref.read(_immutableListProvider.notifier).state = newList;
+
+            // → ref.read(_immutableListProvider.notifier)
+            //      .update((state) => [...state, 0]);
+          },
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        );
+      }),
     );
   }
 }
