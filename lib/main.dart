@@ -20,14 +20,18 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends ConsumerWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
-  final _immutableProvider = StateProvider<int>((ref) => 0);
+  final _stateProvider = StateProvider<int>((ref) => 0);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(_stateProvider, (previous, next) {
+      print('previous: $previous next: $next');
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -39,25 +43,17 @@ class MyHomePage extends StatelessWidget {
             const Text(
               'You have pushed the button this many times:',
             ),
-            Consumer(builder: (context, ref, child) {
-              return Text(
-                '${ref.watch(_immutableProvider)}',
-                style: Theme.of(context).textTheme.headline4,
-              );
-            }),
-            Consumer(builder: (context, ref, child) {
-              return Text(
-                '${ref.read(_immutableProvider)}',
-                style: Theme.of(context).textTheme.headline4,
-              );
-            }),
+            Text(
+              '${ref.watch(_stateProvider)}',
+              style: Theme.of(context).textTheme.headline4,
+            ),
           ],
         ),
       ),
       floatingActionButton: Consumer(builder: (context, ref, child) {
         return FloatingActionButton(
           onPressed: () {
-            ref.read(_immutableProvider.notifier).update((state) => state + 1);
+            ref.read(_stateProvider.notifier).update((state) => state + 1);
           },
           tooltip: 'Increment',
           child: const Icon(Icons.add),
