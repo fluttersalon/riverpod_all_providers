@@ -24,9 +24,8 @@ class MyHomePage extends StatelessWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
-  final _mutableProvider = StateProvider<MutableData>((ref) => MutableData());
   final _immutableProvider =
-      StateProvider<ImmutableData>((ref) => ImmutableData(0));
+      StateProvider<ImmutableData>((ref) => ImmutableData(0, 0));
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +41,16 @@ class MyHomePage extends StatelessWidget {
               'You have pushed the button this many times:',
             ),
             Consumer(builder: (context, ref, child) {
+              print('Without select');
               return Text(
-                '${ref.watch(_mutableProvider).count}',
+                '${ref.watch(_immutableProvider).sameValue}',
                 style: Theme.of(context).textTheme.headline4,
               );
             }),
             Consumer(builder: (context, ref, child) {
+              print('With select');
               return Text(
-                '${ref.watch(_immutableProvider).count}',
+                '${ref.watch(_immutableProvider.select((e) => e.sameValue))}',
                 style: Theme.of(context).textTheme.headline4,
               );
             }),
@@ -59,10 +60,6 @@ class MyHomePage extends StatelessWidget {
       floatingActionButton: Consumer(builder: (context, ref, child) {
         return FloatingActionButton(
           onPressed: () {
-            final mutableData = ref.read(_mutableProvider);
-            mutableData.countUp();
-            ref.read(_mutableProvider.notifier).state = mutableData;
-
             final oldImmutableData = ref.read(_immutableProvider);
             final newImmutableData = oldImmutableData.countUp();
             ref.read(_immutableProvider.notifier).state = newImmutableData;
@@ -75,18 +72,12 @@ class MyHomePage extends StatelessWidget {
   }
 }
 
-class MutableData {
-  int count = 0;
-  void countUp() {
-    count++;
-  }
-}
-
 class ImmutableData {
-  ImmutableData(this.count);
+  ImmutableData(this.count, this.sameValue);
   final int count;
+  final int sameValue;
 
   ImmutableData countUp() {
-    return ImmutableData(count + 1);
+    return ImmutableData(count + 1, sameValue);
   }
 }
