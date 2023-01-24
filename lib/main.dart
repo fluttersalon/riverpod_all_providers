@@ -20,30 +20,17 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends ConsumerStatefulWidget {
+class MyHomePage extends StatelessWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
-  @override
-  ConsumerState<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends ConsumerState<MyHomePage> {
   final _stateProvider = StateProvider<int>((ref) => 0);
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    ref.listen(_stateProvider, (previous, next) {
-      print('previous: $previous next: $next');
-    });
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(title),
       ),
       body: Center(
         child: Column(
@@ -52,14 +39,22 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
             const Text(
               'You have pushed the button this many times:',
             ),
-            Text(
-              '${ref.watch(_stateProvider)}',
-              style: Theme.of(context).textTheme.headline4,
-            ),
+            Consumer(builder: (context, ref, child) {
+              ref.listen(_stateProvider, (previous, next) {
+                print('text previous: $previous next: $next');
+              });
+              return Text(
+                '${ref.watch(_stateProvider)}',
+                style: Theme.of(context).textTheme.headline4,
+              );
+            }),
           ],
         ),
       ),
       floatingActionButton: Consumer(builder: (context, ref, child) {
+        ref.listen(_stateProvider, (previous, next) {
+          print('button previous: $previous next: $next');
+        });
         return FloatingActionButton(
           onPressed: () {
             ref.read(_stateProvider.notifier).update((state) => state + 1);
