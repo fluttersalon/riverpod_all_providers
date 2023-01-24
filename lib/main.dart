@@ -24,8 +24,9 @@ class MyHomePage extends StatelessWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
-  final _normalListProvider = StateProvider<List<int>>((ref) => []);
-  final _immutableListProvider = StateProvider<List<int>>((ref) => []);
+  final _mutableProvider = StateProvider<MutableData>((ref) => MutableData());
+  final _immutableProvider =
+      StateProvider<ImmutableData>((ref) => ImmutableData(0));
 
   @override
   Widget build(BuildContext context) {
@@ -42,13 +43,13 @@ class MyHomePage extends StatelessWidget {
             ),
             Consumer(builder: (context, ref, child) {
               return Text(
-                '${ref.watch(_normalListProvider).length}',
+                '${ref.watch(_mutableProvider).count}',
                 style: Theme.of(context).textTheme.headline4,
               );
             }),
             Consumer(builder: (context, ref, child) {
               return Text(
-                '${ref.watch(_immutableListProvider).length}',
+                '${ref.watch(_immutableProvider).count}',
                 style: Theme.of(context).textTheme.headline4,
               );
             }),
@@ -58,21 +59,34 @@ class MyHomePage extends StatelessWidget {
       floatingActionButton: Consumer(builder: (context, ref, child) {
         return FloatingActionButton(
           onPressed: () {
-            final listInNormalUsage = ref.read(_normalListProvider);
-            listInNormalUsage.add(0);
-            ref.read(_normalListProvider.notifier).state = listInNormalUsage;
+            final mutableData = ref.read(_mutableProvider);
+            mutableData.countUp();
+            ref.read(_mutableProvider.notifier).state = mutableData;
 
-            final list = ref.read(_immutableListProvider);
-            final newList = [...list, 0];
-            ref.read(_immutableListProvider.notifier).state = newList;
-
-            // → ref.read(_immutableListProvider.notifier)
-            //      .update((state) => [...state, 0]);
+            final oldImmutableData = ref.read(_immutableProvider);
+            final newImmutableData = oldImmutableData.countUp();
+            ref.read(_immutableProvider.notifier).state = newImmutableData;
           },
           tooltip: 'Increment',
           child: const Icon(Icons.add),
         );
       }),
     );
+  }
+}
+
+class MutableData {
+  int count = 0;
+  void countUp() {
+    count++;
+  }
+}
+
+class ImmutableData {
+  ImmutableData(this.count);
+  final int count;
+
+  ImmutableData countUp() {
+    return ImmutableData(count + 1);
   }
 }
