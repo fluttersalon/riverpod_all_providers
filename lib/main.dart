@@ -24,8 +24,7 @@ class MyHomePage extends StatelessWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
-  final _immutableProvider =
-      StateProvider<ImmutableData>((ref) => ImmutableData(0, 0));
+  final _immutableProvider = StateProvider<int>((ref) => 0);
 
   @override
   Widget build(BuildContext context) {
@@ -41,16 +40,14 @@ class MyHomePage extends StatelessWidget {
               'You have pushed the button this many times:',
             ),
             Consumer(builder: (context, ref, child) {
-              print('Without select');
               return Text(
-                '${ref.watch(_immutableProvider).sameValue}',
+                '${ref.watch(_immutableProvider)}',
                 style: Theme.of(context).textTheme.headline4,
               );
             }),
             Consumer(builder: (context, ref, child) {
-              print('With select');
               return Text(
-                '${ref.watch(_immutableProvider.select((e) => e.sameValue))}',
+                '${ref.read(_immutableProvider)}',
                 style: Theme.of(context).textTheme.headline4,
               );
             }),
@@ -60,24 +57,12 @@ class MyHomePage extends StatelessWidget {
       floatingActionButton: Consumer(builder: (context, ref, child) {
         return FloatingActionButton(
           onPressed: () {
-            final oldImmutableData = ref.read(_immutableProvider);
-            final newImmutableData = oldImmutableData.countUp();
-            ref.read(_immutableProvider.notifier).state = newImmutableData;
+            ref.read(_immutableProvider.notifier).update((state) => state + 1);
           },
           tooltip: 'Increment',
           child: const Icon(Icons.add),
         );
       }),
     );
-  }
-}
-
-class ImmutableData {
-  ImmutableData(this.count, this.sameValue);
-  final int count;
-  final int sameValue;
-
-  ImmutableData countUp() {
-    return ImmutableData(count + 1, sameValue);
   }
 }
