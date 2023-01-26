@@ -29,8 +29,9 @@ class MyHomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print('context == ref: ${context == ref}');
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(_stateProvider.notifier).update((state) => state + 1);
+    });
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
