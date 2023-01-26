@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
+  print('start');
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -31,6 +32,11 @@ class MyHomePage extends ConsumerWidget {
 
   final _apiProvider =
       FutureProvider.autoDispose.family<String, int>((ref, page) async {
+    print('provider was initialized (page=$page)');
+    ref.onDispose(() => print('provider was disposed (page=$page)'));
+    ref.onCancel(() => print('provider was canceled (page=$page)'));
+    ref.onResume(() => print('provider was resumed (page=$page)'));
+
     String url =
         'https://api.github.com/search/repositories?q=flutter&page=$page';
 
@@ -48,6 +54,8 @@ class MyHomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print('ConsumerWidget was build');
+
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
