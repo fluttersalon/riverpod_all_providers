@@ -2,10 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
 
 void main() {
-  print('start');
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -27,34 +25,11 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends ConsumerWidget {
   MyHomePage({super.key, required this.title});
   final String title;
-
-  int _counter = 1;
-
-  final _apiProvider =
-      FutureProvider.autoDispose.family<String, int>((ref, page) async {
-    print('provider was initialized (page=$page)');
-    ref.onDispose(() => print('provider was disposed (page=$page)'));
-    ref.onCancel(() => print('provider was canceled (page=$page)'));
-    ref.onResume(() => print('provider was resumed (page=$page)'));
-
-    String url =
-        'https://api.github.com/search/repositories?q=flutter&page=$page';
-
-    final client = http.Client();
-    final response = await client.get(Uri.parse(url));
-    final data = json.decode(response.body);
-    final projectName = data['items'][0]['name'];
-    return projectName;
-  });
-
-  void _incrementCounter(WidgetRef ref) {
-    _counter++;
-    ref.invalidate(_apiProvider);
-  }
+  final _stateProvider = StateProvider<int>((ref) => 0);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print('ConsumerWidget was build');
+    print('context == ref: ${context == ref}');
 
     return Scaffold(
       appBar: AppBar(
@@ -67,16 +42,16 @@ class MyHomePage extends ConsumerWidget {
             const Text(
               'You have pushed the button this many times:',
             ),
-            ref.watch(_apiProvider(_counter)).when(
-                  loading: () => const CircularProgressIndicator(),
-                  error: (_, __) => const Text('error'),
-                  data: (data) => Text(data),
-                )
+            Text(
+              '${ref.watch(_stateProvider)}',
+              style: Theme.of(context).textTheme.headline4,
+            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _incrementCounter(ref),
+        onPressed: () =>
+            ref.read(_stateProvider.notifier).update((state) => state + 1),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
