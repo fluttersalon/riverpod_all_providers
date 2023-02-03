@@ -1,7 +1,16 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'main.g.dart';
+
+@riverpod
+class Counter extends _$Counter {
+  @override
+  int build() => 0;
+
+  void increase() => state++;
+}
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -25,13 +34,9 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends ConsumerWidget {
   MyHomePage({super.key, required this.title});
   final String title;
-  final _stateProvider = StateProvider<int>((ref) => 0);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(_stateProvider.notifier).update((state) => state + 1);
-    });
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -44,15 +49,14 @@ class MyHomePage extends ConsumerWidget {
               'You have pushed the button this many times:',
             ),
             Text(
-              '${ref.watch(_stateProvider)}',
+              ref.watch(counterProvider).toString(),
               style: Theme.of(context).textTheme.headline4,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            ref.read(_stateProvider.notifier).update((state) => state + 1),
+        onPressed: () => ref.read(counterProvider.notifier).increase(),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
