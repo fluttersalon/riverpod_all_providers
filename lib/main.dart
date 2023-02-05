@@ -22,19 +22,31 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends ConsumerWidget {
+class MyHomePage extends ConsumerStatefulWidget {
   MyHomePage({super.key, required this.title});
   final String title;
+
+  @override
+  ConsumerState<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends ConsumerState<MyHomePage> {
   final _stateProvider = StateProvider<int>((ref) => 0);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(_stateProvider.notifier).update((state) => state + 1);
+      ref.read(_stateProvider.notifier).update((state) => 10);
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
       ),
       body: Center(
         child: Column(
