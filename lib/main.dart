@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 String githubUrl(_) =>
     'https://api.github.com/search/repositories?q=[keyword]&page=[page]';
 
@@ -44,7 +44,6 @@ Future<String> repositoryTitle(RepositoryTitleRef ref,
   final map = json.decode(result.body) as Map<String, dynamic>;
 
   final title = map['items'][0]['name'];
-
   return title;
 }
 
@@ -52,7 +51,7 @@ class MyHomePage extends ConsumerWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
-  int _page = 1;
+  int _page = 0;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
