@@ -49,14 +49,14 @@ class MyHomePage extends ConsumerWidget {
               'You have pushed the button this many times:',
             ),
             Text(
-              ref.watch(counterProvider).toString(),
+              '${ref.watch(counterProvider)}',
               style: Theme.of(context).textTheme.headline4,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => ref.read(counterProvider.notifier).increase(),
+        onPressed: ref.read(counterProvider.notifier).increase,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
