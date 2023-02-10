@@ -47,14 +47,21 @@ Future<String> repositoryTitle(RepositoryTitleRef ref,
   return title;
 }
 
+@riverpod
+class Count extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void increase() => state++;
+}
+
 class MyHomePage extends ConsumerWidget {
   MyHomePage({super.key, required this.title});
   final String title;
 
-  int _page = 0;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    int counter = ref.watch(countProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -66,8 +73,10 @@ class MyHomePage extends ConsumerWidget {
             const Text(
               'You have pushed the button this many times:',
             ),
+            Text(counter.toString()),
             ref
-                .watch(repositoryTitleProvider(page: _page, keyword: 'flutter'))
+                .watch(
+                    repositoryTitleProvider(page: counter, keyword: 'flutter'))
                 .when(
                   loading: () => const CircularProgressIndicator(),
                   error: (error, stack) => const Text('error'),
@@ -81,7 +90,7 @@ class MyHomePage extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          _page++;
+          ref.read(countProvider.notifier).state++;
           ref.invalidate(repositoryTitleProvider);
         },
         tooltip: 'Increment',
