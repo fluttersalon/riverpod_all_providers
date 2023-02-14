@@ -6,28 +6,19 @@ import 'dart:convert';
 
 part 'main.g.dart';
 
-void main() {
-  runApp(const ProviderScope(child: MyApp()));
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
 @Riverpod(keepAlive: true)
 String githubUrl(_) =>
     'https://api.github.com/search/repositories?q=[keyword]&page=[page]';
+// → githubUrlProvider, GithubUrlRef
+
+@riverpod
+class Count extends _$Count {
+  @override
+  int build() => 0;
+
+  void increase() => state++;
+}
+// → countProvider, CountRef
 
 @riverpod
 Future<String> repositoryTitle(RepositoryTitleRef ref,
@@ -46,13 +37,25 @@ Future<String> repositoryTitle(RepositoryTitleRef ref,
   final title = map['items'][0]['name'];
   return title;
 }
+// → RepositoryTitleProvider, RepositoryTitleRef, RepositoryTitleFamily
 
-@riverpod
-class Count extends Notifier<int> {
+void main() {
+  runApp(const ProviderScope(child: MyApp()));
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
-  int build() => 0;
-
-  void increase() => state++;
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
 }
 
 class MyHomePage extends ConsumerWidget {
