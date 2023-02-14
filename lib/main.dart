@@ -14,7 +14,7 @@ String githubUrl(_) =>
 @riverpod
 class Count extends _$Count {
   @override
-  int build() => 0;
+  int build() => 1;
 
   void increase() => state++;
 }
